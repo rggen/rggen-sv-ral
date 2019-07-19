@@ -15,12 +15,16 @@ begin \
   default_map.add_reg(handle, offset, `"rights`", unmapped); \
 end
 
-`define rggen_ral_create_block_model(handle, offset) \
+`define rggen_ral_create_block_model(handle, offset, parent = this) \
 begin \
+  uvm_reg_block __parent; \
+  void'($cast(__parent, parent)); \
   handle  = new(`"handle`"); \
-  handle.configure(this); \
+  handle.configure(__parent); \
   handle.build(); \
-  default_map.add_submap(handle.default_map, offset); \
+  if (__parent != null) begin \
+    __parent.default_map.add_submap(handle.default_map, offset); \
+  end \
 end
 
 `endif

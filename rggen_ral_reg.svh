@@ -16,4 +16,8 @@ class rggen_ral_reg extends uvm_reg;
       this.array_index.push_back(array_index[i]);
     end
   endfunction
+
+  virtual function uvm_reg_frontdoor create_frontdoor();
+    return null;
+    endfunction
 endclass
