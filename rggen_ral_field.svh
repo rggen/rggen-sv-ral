@@ -1,0 +1,1 @@
+typedef uvm_reg_field rggen_ral_field;
