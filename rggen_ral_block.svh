@@ -13,6 +13,9 @@ class rggen_ral_block extends uvm_reg_block;
     end
   endfunction
 
+  function void build();
+  endfunction
+
   function void lock_model();
     uvm_reg_block parent;
     uvm_reg_map   maps[$];

@@ -17,6 +17,9 @@ class rggen_ral_reg extends uvm_reg;
     end
   endfunction
 
+  function void build();
+  endfunction
+
   virtual function uvm_reg_frontdoor create_frontdoor();
     return null;
     endfunction
