@@ -1,29 +1,29 @@
 `ifndef RGGEN_RAL_MACROS_SVH
 `define RGGEN_RAL_MACROS_SVH
 
-`define rggen_ral_create_field_model(handle, lsb, size, access, volatile, reset, has_reset) \
+`define rggen_ral_create_field_model(HANDLE, LSB, SIZE, ACCESS, VOLATILE, RESET, HAS_RESET) \
 begin \
-  handle  = new(`"handle`"); \
-  handle.configure(this, size, lsb, `"access`", volatile, reset, has_reset, 1, 0); \
+  HANDLE  = new(`"HANDLE`"); \
+  HANDLE.configure(this, SIZE, LSB, `"ACCESS`", VOLATILE, RESET, HAS_RESET, 1, 0); \
 end
 
-`define rggen_ral_create_reg_model(handle, array_index, offset, rights, unmapped, hdl_path) \
+`define rggen_ral_create_reg_model(HANDLE, ARRAY_INDEX, OFFSET, RIGHTS, UNMAPPED, HDL_PATH) \
 begin \
-  handle  = new(`"handle`"); \
-  handle.configure(this, null, array_index, `"hdl_path`"); \
-  handle.build(); \
-  default_map.add_reg(handle, offset, `"rights`", unmapped); \
+  HANDLE  = new(`"HANDLE`"); \
+  HANDLE.configure(this, null, ARRAY_INDEX, `"HDL_PATH`"); \
+  HANDLE.build(); \
+  default_map.add_reg(HANDLE, OFFSET, `"RIGHTS`", UNMAPPED); \
 end
 
-`define rggen_ral_create_block_model(handle, offset, parent = this) \
-begin \
+`define rggen_ral_create_block_model(HANDLE, OFFSET, PARENT = this, CREATE = 1) \
+if (CREATE) begin \
   uvm_reg_block __parent; \
-  void'($cast(__parent, parent)); \
-  handle  = new(`"handle`"); \
-  handle.configure(__parent); \
-  handle.build(); \
+  void'($cast(__parent, PARENT)); \
+  HANDLE  = new(`"HANDLE`"); \
+  HANDLE.configure(__parent); \
+  HANDLE.build(); \
   if (__parent != null) begin \
-    __parent.default_map.add_submap(handle.default_map, offset); \
+    __parent.default_map.add_submap(HANDLE.default_map, OFFSET); \
   end \
 end
 
