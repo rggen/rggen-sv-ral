@@ -15,7 +15,6 @@ class rggen_ral_reg extends uvm_reg;
     foreach (array_index[i]) begin
       this.array_index.push_back(array_index[i]);
     end
-    create_backdoor();
   endfunction
 
   function void build();
@@ -26,7 +25,7 @@ class rggen_ral_reg extends uvm_reg;
   endfunction
 
 `ifdef RGGEN_ENABLE_BACKDOOR
-  protected virtual function void create_backdoor();
+  virtual function void enable_backdoor();
     uvm_hdl_path_concat hdl_path[$];
     uvm_reg_backdoor    backdoor;
     get_full_hdl_path(hdl_path);
@@ -34,7 +33,7 @@ class rggen_ral_reg extends uvm_reg;
     set_backdoor(backdoor);
   endfunction
 `else
-  protected virtual function void create_backdoor();
+  virtual function void enable_backdoor();
   endfunction
 `endif
 endclass
