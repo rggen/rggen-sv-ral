@@ -27,4 +27,12 @@ if (CREATE) begin \
   end \
 end
 
+`ifdef UVM_VERSION_1_0
+  `define RGGEN_UVM_PRE_IEEE
+`elsif UVM_VERSION_1_1
+  `define RGGEN_UVM_PRE_IEEE
+`elsif UVM_VERSION_1_2
+  `define RGGEN_UVM_PRE_IEEE
+`endif
+
 `endif
