@@ -19,12 +19,6 @@ class rggen_ral_rwe_rwl_field_callbacks extends uvm_reg_cbs;
     this.field_name   = field_name;
   endfunction
 
-  task pre_write(uvm_reg_item rw);
-    if ((rw.kind == UVM_WRITE) && (rw.path == UVM_BACKDOOR) && !is_writable()) begin
-      rw.value[0] = field.value;
-    end
-  endtask
-
   function void post_predict(
     input uvm_reg_field   fld,
     input uvm_reg_data_t  previous,
@@ -39,8 +33,13 @@ class rggen_ral_rwe_rwl_field_callbacks extends uvm_reg_cbs;
   endfunction
 
   local function bit is_writable();
-    lookup_mode_field();
-    return (mode_field.value == enable_mode) ? 1 : 0;
+    if ((reg_name.len() > 0) && (field_name.len() > 0)) begin
+      lookup_mode_field();
+      return (mode_field.value == enable_mode) ? 1 : 0;
+    end
+    else begin
+      return 0;
+    end
   endfunction
 
   local function void lookup_mode_field();
