@@ -83,6 +83,31 @@ class rggen_ral_rwe_rwl_field extends rggen_ral_field;
     );
     uvm_reg_field_cb::add(this, callbacks);
   endfunction
+
+  function string get_access(uvm_reg_map map = null);
+    uvm_reg parent;
+
+    if (map == uvm_reg_map::backdoor()) begin
+      return m_field_access;
+    end
+
+    parent  = get_parent();
+    case (parent.get_rights(map))
+      "RW":     return m_field_access;
+      "WO":     return m_field_access;
+      "RO":     return "RO";
+      default:  return super.get_access(map);
+    endcase
+  endfunction
+
+  function bit is_known_access(uvm_reg_map map = null);
+    case (get_access(map))
+      "RWE":    return 1;
+      "RWL":    return 1;
+      "RO":     return 1;
+      default:  return 0;
+    endcase
+  endfunction
 endclass
 
 class rggen_ral_rwe_field #(

@@ -1,4 +1,6 @@
 class rggen_ral_block extends uvm_reg_block;
+  protected bit lock_in_progress;
+
   function new(string name, int has_coverage = UVM_NO_COVERAGE);
     super.new(name, has_coverage);
   endfunction
@@ -24,9 +26,12 @@ class rggen_ral_block extends uvm_reg_block;
       return;
     end
 
+    lock_in_progress  = 1;
+
     super.lock_model();
     parent  = get_parent();
     if (parent != null) begin
+      lock_in_progress  = 0;
       return;
     end
 
@@ -37,6 +42,8 @@ class rggen_ral_block extends uvm_reg_block;
         rggen_map.Xinit_indirect_reg_address_mapX();
       end
     end
+
+    lock_in_progress  = 0;
   endfunction
 
   virtual function uvm_reg_map create_map(
@@ -66,5 +73,9 @@ class rggen_ral_block extends uvm_reg_block;
         rggen_reg.enable_backdoor();
       end
     end
+  endfunction
+
+  virtual function bit is_locking_model();
+    return lock_in_progress;
   endfunction
 endclass
