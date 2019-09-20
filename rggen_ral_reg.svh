@@ -24,16 +24,13 @@ class rggen_ral_reg extends uvm_reg;
     return null;
   endfunction
 
-`ifdef RGGEN_ENABLE_BACKDOOR
   virtual function void enable_backdoor();
-    uvm_hdl_path_concat hdl_path[$];
-    uvm_reg_backdoor    backdoor;
-    get_full_hdl_path(hdl_path);
-    backdoor  = rggen_backdoor_pkg::get_backdoor(hdl_path[0].slices[0].path);
-    set_backdoor(backdoor);
+    if (rggen_ral_backdoor_pkg::is_backdoor_enabled()) begin
+      uvm_hdl_path_concat hdl_path[$];
+      uvm_reg_backdoor    backdoor;
+      get_full_hdl_path(hdl_path);
+      backdoor  = rggen_ral_backdoor_pkg::get_backdoor(hdl_path[0].slices[0].path);
+      set_backdoor(backdoor);
+    end
   endfunction
-`else
-  virtual function void enable_backdoor();
-  endfunction
-`endif
 endclass
