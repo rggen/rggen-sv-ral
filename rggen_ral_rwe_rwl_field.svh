@@ -85,16 +85,18 @@ class rggen_ral_rwe_rwl_field extends rggen_ral_field;
   endfunction
 
   function string get_access(uvm_reg_map map = null);
+    string  access;
     uvm_reg parent;
 
+    access  = super.get_access(uvm_reg_map::backdoor());
     if (map == uvm_reg_map::backdoor()) begin
-      return m_field_access;
+      return access;
     end
 
     parent  = get_parent();
     case (parent.get_rights(map))
-      "RW":     return m_field_access;
-      "WO":     return m_field_access;
+      "RW":     return access;
+      "WO":     return access;
       "RO":     return "RO";
       default:  return super.get_access(map);
     endcase

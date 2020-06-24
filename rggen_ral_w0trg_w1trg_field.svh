@@ -1,5 +1,3 @@
-typedef class rggen_ral_block;
-
 class rggen_ral_w0trg_w1trg_field extends rggen_ral_field;
   local static  bit w0trg_defined = define_access("W0TRG");
   local static  bit w1trg_defined = define_access("W1TRG");
@@ -13,27 +11,28 @@ class rggen_ral_w0trg_w1trg_field extends rggen_ral_field;
   endfunction
 
   function string get_access(uvm_reg_map map = null);
-    uvm_reg         parent;
-    rggen_ral_block rggen_block;
+    string  access;
+    uvm_reg parent;
 
+    access  = super.get_access(uvm_reg_map::backdoor());
     if (map == uvm_reg_map::backdoor()) begin
-      return m_field_access;
+      return access;
     end
 
     parent  = get_parent();
-    if ($cast(rggen_block, parent.get_parent()) && rggen_block.is_locking_model()) begin
-      //  uvm_reg::Xget_fields_accessX returns "RW" if an user-defined field is included.
-      //  This behavior causes wrong uvm_reg_map initialization.
-      //  During the initialization, this method has to return "WO".
-      return "WO";
-    end
-
     case (parent.get_rights(map))
-      "RW":     return m_field_access;
-      "WO":     return m_field_access;
-      "RO":     return "NOACCESS";
-      default:  return super.get_access(map);
+      "RW": return access;
+      "WO": return access;
+      "RO": return super.get_access(map);
     endcase
+  endfunction
+
+  function bit is_writable(uvm_reg_map map = null);
+    return get_access(map) != "NOACCESS";
+  endfunction
+
+  function bit is_readable(uvm_reg_map map = null);
+    return 0;
   endfunction
 
   function bit is_known_access(uvm_reg_map map = null);

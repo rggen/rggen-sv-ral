@@ -10,6 +10,18 @@ package rggen_ral_pkg;
     typedef uvm_path_e  uvm_door_e;
   `endif
 
+  `ifdef RGGEN_ENABLE_ENHANCED_RAL
+    typedef tue_pkg::tue_reg_field  rggen_ral_field_base;
+    typedef tue_pkg::tue_reg        rggen_ral_reg_base;
+    typedef tue_pkg::tue_reg_block  rggen_ral_block_base;
+    typedef tue_pkg::tue_reg_map    rggen_ral_map_base;
+  `else
+    typedef uvm_pkg::uvm_reg_field  rggen_ral_field_base;
+    typedef uvm_pkg::uvm_reg        rggen_ral_reg_base;
+    typedef uvm_pkg::uvm_reg_block  rggen_ral_block_base;
+    typedef uvm_pkg::uvm_reg_map    rggen_ral_map_base;
+  `endif
+
   `include  "rggen_ral_field.svh"
   `include  "rggen_ral_rwe_rwl_field.svh"
   `include  "rggen_ral_w0trg_w1trg_field.svh"

@@ -1,4 +1,4 @@
-class rggen_ral_reg extends uvm_reg;
+class rggen_ral_reg extends rggen_ral_reg_base;
   protected int unsigned  array_index[$];
 
   function new(string name, int unsigned n_bits, int has_coverage);
@@ -20,9 +20,11 @@ class rggen_ral_reg extends uvm_reg;
   function void build();
   endfunction
 
+`ifndef RGGEN_ENABLE_ENHANCED_RAL
   virtual function uvm_reg_frontdoor create_frontdoor();
     return null;
   endfunction
+`endif
 
   virtual function void enable_backdoor();
     if (rggen_ral_backdoor_pkg::is_backdoor_enabled()) begin
