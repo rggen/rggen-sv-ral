@@ -1,9 +1,46 @@
+class rggen_ral_w0trg_w1trg_field_callbacks extends uvm_reg_cbs;
+  function new(string name = "rggen_ral_w0trg_w1trg_field_callbacks");
+    super.new(name);
+  endfunction
+
+  function void post_predict(
+    input uvm_reg_field   fld,
+    input uvm_reg_data_t  previous,
+    inout uvm_reg_data_t  value,
+    input uvm_predict_e   kind,
+    input uvm_door_e      path,
+    input uvm_reg_map     map
+  );
+    value = 0;
+  endfunction
+endclass
+
 class rggen_ral_w0trg_w1trg_field extends rggen_ral_field;
   local static  bit w0trg_defined = define_access("W0TRG");
   local static  bit w1trg_defined = define_access("W1TRG");
 
+  local static  rggen_ral_w0trg_w1trg_field_callbacks cb;
+
   function new(string name);
     super.new(name);
+  endfunction
+
+  function void configure(
+    uvm_reg         parent,
+    int unsigned    size,
+    int unsigned    lsb_pos,
+    string          access,
+    bit             volatile,
+    uvm_reg_data_t  reset,
+    bit             has_reset,
+    bit             is_rand,
+    bit             individually_accessible
+  );
+    super.configure(
+      parent, size, lsb_pos, access, volatile,
+      reset, has_reset, is_rand, individually_accessible
+    );
+    register_cb();
   endfunction
 
   function bit needs_update();
@@ -44,17 +81,27 @@ class rggen_ral_w0trg_w1trg_field extends rggen_ral_field;
     endcase
   endfunction
 
-  function void do_predict(
-    uvm_reg_item      rw,
-    uvm_predict_e     kind  = UVM_PREDICT_DIRECT,
-    uvm_reg_byte_en_t be    = -1
+`ifdef RGGEN_ENABLE_ENHANCED_RAL
+  protected function bit m_do_predict(
+    input uvm_reg_data_t  current_value,
+    ref   uvm_reg_data_t  rw_value,
+    input uvm_predict_e   kind,
+    input uvm_reg_map     map
   );
-    uvm_reg_data_t  value;
-    value       = rw.value[0];
-    rw.value[0] = 0;
-    super.do_predict(rw, kind, be);
-    rw.value[0] = value;
+    rw_value  = '0;
+    return 1;
   endfunction
+
+  local function void register_cb();
+  endfunction
+`else
+  local function void register_cb();
+    if (cb == null) begin
+      cb  = new();
+    end
+    uvm_reg_field_cb::add(this, cb);
+  endfunction
+`endif
 endclass
 
 typedef rggen_ral_w0trg_w1trg_field rggen_ral_w0trg_field;
