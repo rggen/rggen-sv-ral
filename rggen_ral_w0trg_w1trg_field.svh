@@ -82,14 +82,14 @@ class rggen_ral_w0trg_w1trg_field extends rggen_ral_field;
   endfunction
 
 `ifdef RGGEN_ENABLE_ENHANCED_RAL
-  protected function bit m_do_predict(
+  protected function void post_predict(
     input uvm_reg_data_t  current_value,
-    ref   uvm_reg_data_t  rw_value,
+    inout uvm_reg_data_t  rw_value,
     input uvm_predict_e   kind,
+    input uvm_door_e      path,
     input uvm_reg_map     map
   );
     rw_value  = '0;
-    return 1;
   endfunction
 
   local function void register_cb();
