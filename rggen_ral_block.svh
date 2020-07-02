@@ -1,6 +1,9 @@
 class rggen_ral_block extends rggen_ral_block_base;
-  function new(string name, int has_coverage = UVM_NO_COVERAGE);
-    super.new(name, has_coverage);
+  protected int unsigned  n_bytes;
+
+  function new(string name, int unsigned n_bytes);
+    super.new(name, UVM_NO_COVERAGE);
+    this.n_bytes  = n_bytes;
   endfunction
 
   function void configure(
@@ -14,6 +17,24 @@ class rggen_ral_block extends rggen_ral_block_base;
   endfunction
 
   function void build();
+  endfunction
+
+  virtual function void get_register_files(
+    ref   rggen_ral_reg_file  files[$],
+    input uvm_hier_e          hier  = UVM_HIER
+  );
+    uvm_reg_block       blocks[$];
+    rggen_ral_reg_file  file;
+
+    get_blocks(blocks, UVM_NO_HIER);
+    foreach (blocks[i]) begin
+      if ($cast(file, blocks[i])) begin
+        files.push_back(file);
+        if (hier == UVM_HIER) begin
+          file.get_register_files(files, hier);
+        end
+      end
+    end
   endfunction
 
 `ifndef RGGEN_ENABLE_ENHANCED_RAL
@@ -56,7 +77,7 @@ class rggen_ral_block extends rggen_ral_block_base;
   endfunction
 
   protected virtual function uvm_reg_map create_default_map();
-    return null;
+    return create_map("default_map", 0, n_bytes, UVM_LITTLE_ENDIAN, 1);
   endfunction
 
   virtual function void enable_backdoor();

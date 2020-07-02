@@ -34,11 +34,12 @@ class rggen_ral_w0trg_w1trg_field extends rggen_ral_field;
     uvm_reg_data_t  reset,
     bit             has_reset,
     bit             is_rand,
-    bit             individually_accessible
+    int unsigned    sequence_index,
+    string          reference_name
   );
     super.configure(
       parent, size, lsb_pos, access, volatile,
-      reset, has_reset, is_rand, individually_accessible
+      reset, has_reset, is_rand, sequence_index, reference_name
     );
     register_cb();
   endfunction
