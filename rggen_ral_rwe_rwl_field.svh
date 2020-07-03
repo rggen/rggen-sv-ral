@@ -1,11 +1,8 @@
-class rggen_ral_rwe_rwl_field_callbacks extends uvm_reg_cbs;
-  local rggen_ral_field field;
-  local bit             enable_mode;
-
-  function new(string name, rggen_ral_field field, bit enable_mode);
+class rggen_ral_rwe_rwl_field_callbacks #(
+  bit ENABLE_MODE = 1
+) extends uvm_reg_cbs;
+  function new(string name = "rggen_ral_rwe_rwl_field_callbacks");
     super.new(name);
-    this.field        = field;
-    this.enable_mode  = enable_mode;
   endfunction
 
   function void post_predict(
@@ -16,32 +13,37 @@ class rggen_ral_rwe_rwl_field_callbacks extends uvm_reg_cbs;
     input uvm_door_e      path,
     input uvm_reg_map     map
   );
-    if ((kind == UVM_PREDICT_WRITE) && !is_writable()) begin
+    if ((kind == UVM_PREDICT_WRITE) && (!is_writable(fld))) begin
       value = previous;
     end
   endfunction
 
-  local function bit is_writable();
-    uvm_reg_field mode_field  = field.get_reference_field();
+  local function bit is_writable(uvm_reg_field field);
+    uvm_reg_field mode_field  = get_mode_field(field);
     if (mode_field != null) begin
-      return mode_field.value[0] == enable_mode;
+      return mode_field.value[0] == ENABLE_MODE;
     end
     else begin
       return 0;
     end
   endfunction
+
+  local function uvm_reg_field get_mode_field(uvm_reg_field field);
+    rggen_ral_field temp;
+    void'($cast(temp, field));
+    return temp.get_reference_field();
+  endfunction
 endclass
 
 class rggen_ral_rwe_rwl_field #(
-  bit ENABLE_MODE = 1
+  string  TYPE_NAME = "",
+  type    CALLBACKS = uvm_reg_cbs
 ) extends rggen_ral_field;
-  local static  bit rwl_defined = define_access("RWL");
-
-  protected rggen_ral_rwe_rwl_field_callbacks callbacks;
+  local static  bit       defined = define_access(TYPE_NAME);
+  local static  CALLBACKS cb;
 
   function new(string name);
     super.new(name);
-    callbacks = new("callbacks", this, ENABLE_MODE);
   endfunction
 
   function void configure(
@@ -52,15 +54,14 @@ class rggen_ral_rwe_rwl_field #(
     bit             volatile,
     uvm_reg_data_t  reset,
     bit             has_reset,
-    bit             is_rand,
-    int unsigned    sequence_index,
+    int             sequence_index,
     string          reference_name
   );
     super.configure(
       parent, size, lsb_pos, access, volatile,
-      reset, has_reset, is_rand, sequence_index, reference_name
+      reset, has_reset, sequence_index, reference_name
     );
-    uvm_reg_field_cb::add(this, callbacks);
+    register_cb();
   endfunction
 
   function string get_access(uvm_reg_map map = null);
@@ -89,7 +90,24 @@ class rggen_ral_rwe_rwl_field #(
       default:  return 0;
     endcase
   endfunction
+
+  local function void register_cb();
+    if (cb == null) begin
+      cb  = new();
+    end
+    uvm_reg_field_cb::add(this, cb);
+  endfunction
 endclass
 
-typedef rggen_ral_rwe_rwl_field #(1)  rggen_ral_rwe_field;
-typedef rggen_ral_rwe_rwl_field #(0)  rggen_ral_rwl_field;
+typedef rggen_ral_rwe_rwl_field_callbacks #(1)  rggen_ral_rwe_field_callbacks;
+typedef rggen_ral_rwe_rwl_field_callbacks #(0)  rggen_ral_rwl_field_callbacks;
+
+typedef rggen_ral_rwe_rwl_field #(
+  .TYPE_NAME  ("RWE"                          ),
+  .CALLBACKS  (rggen_ral_rwe_field_callbacks  )
+) rggen_ral_rwe_field;
+
+typedef rggen_ral_rwe_rwl_field #(
+  .TYPE_NAME  ("RWL"                          ),
+  .CALLBACKS  (rggen_ral_rwl_field_callbacks  )
+) rggen_ral_rwl_field;

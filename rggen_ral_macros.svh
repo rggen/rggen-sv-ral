@@ -15,7 +15,7 @@ begin \
   default_map.add_reg(HANDLE, OFFSET, RIGHTS, 0); \
 end
 
-`define rggen_ral_create_reg_file(HANDLE, OFFSET, ARRAY_INDEX, HDL_PATH) \
+`define rggen_ral_create_reg_file(HANDLE, ARRAY_INDEX, OFFSET, HDL_PATH) \
 begin \
   HANDLE  = new(`"HANDLE`"); \
   HANDLE.configure(this, ARRAY_INDEX, HDL_PATH); \

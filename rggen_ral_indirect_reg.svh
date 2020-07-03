@@ -4,13 +4,13 @@ typedef class rggen_ral_indirect_reg_frontdoor;
 class rggen_ral_indirect_reg extends rggen_ral_reg;
   protected rggen_ral_indirect_reg_index_field  index_fields[$];
 
-  function new(string name, int unsigned n_bits);
-    super.new(name, n_bits);
+  function new(string name, int unsigned n_bits, int has_coverage);
+    super.new(name, n_bits, has_coverage);
   endfunction
 
   function void configure(
     uvm_reg_block parent,
-    int unsigned  array_index[$],
+    int           array_index[$],
     string        hdl_path
   );
     super.configure(parent, array_index, hdl_path);
@@ -47,7 +47,7 @@ class rggen_ral_indirect_reg_index_field;
   protected string          field_name;
   protected uvm_reg_data_t  value;
   protected uvm_reg_field   index_field;
-  protected uvm_reg         index_rg;
+  protected uvm_reg         index_reg;
 
   function new(rggen_ral_reg rg, string field_name, uvm_reg_data_t value);
     this.rg         = rg;
@@ -82,7 +82,7 @@ class rggen_ral_indirect_reg_index_field;
   local function void lookup_index_field();
     rggen_ral_name_slice  name_slices[$];
     rggen_ral_get_name_slices(field_name, name_slices);
-    index_field = rggen_ral_find_field_by_name(rg.get_block(), name_slices);
+    index_field = rggen_ral_find_field_by_name(rg.get_parent_block(), name_slices);
   endfunction
 endclass
 
@@ -128,13 +128,13 @@ class rggen_ral_indirect_reg_frontdoor extends uvm_reg_frontdoor;
     end
 
     foreach (index_fields[i]) begin
-      uvm_reg_field field = index_fields[i].get_index_reg();
+      uvm_reg_field field = index_fields[i].get_index_field();
       field.set(index_fields[i].get_value(), rw_info.fname, rw_info.lineno);
     end
 
     foreach (index_regs[index_reg]) begin
       index_reg.update(
-        status, rw_info.path, rw_info.map, rw_info.parent,
+        status, rw_info.path, null, rw_info.parent,
         rw_info.prior, rw_info.extension, rw_info.fname, rw_info.lineno
       );
       if (status == UVM_NOT_OK) begin

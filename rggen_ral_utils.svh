@@ -1,13 +1,17 @@
 class rggen_ral_name_slice;
-  local string        name;
-  local string        array_name;
-  local int unsigned  array_index;
+  local string  name;
+  local string  array_name;
+  local int     array_index[$];
 
   function new(string name);
     this.name = name;
   endfunction
 
-  function void set_array_index(const ref int unsigned array_index[$]);
+  function string get_name();
+    return name;
+  endfunction
+
+  function void set_array_index(const ref int array_index[$]);
     foreach (array_index[i]) begin
       this.array_index.push_back(array_index[i]);
     end
@@ -39,8 +43,8 @@ function automatic void rggen_ral_get_name_slices(
 endfunction
 
 function automatic uvm_object rggen_ral_find_element_by_name(
-  input     uvm_object            from,
-  const ref rggen_ral_name_slice  name_slice
+  uvm_object            from,
+  rggen_ral_name_slice  name_slice
 );
   rggen_ral_block block;
   rggen_ral_reg   rg;
@@ -78,7 +82,7 @@ function automatic uvm_object rggen_ral_find_element_by_name(
 endfunction
 
 function automatic uvm_reg_field rggen_ral_find_field_by_name(
-  input     rggen_ral_block       block,
+  input     uvm_reg_block         block,
   const ref rggen_ral_name_slice  name_slices[$]
 );
   uvm_object    current_element;
@@ -88,10 +92,44 @@ function automatic uvm_reg_field rggen_ral_find_field_by_name(
   foreach (name_slices[i]) begin
     current_element =
       rggen_ral_find_element_by_name(current_element, name_slices[i]);
+    if (current_element == null) begin
+      break;
+    end
   end
-  void'($cast(field, current_element));
 
-  return field;
+  if ((current_element != null) && $cast(field, current_element)) begin
+    return field;
+  end
+  else begin
+    string  field_name;
+
+    foreach (name_slices[i]) begin
+      if (i == 0) begin
+        field_name  = name_slices[i].get_name();
+      end
+      else begin
+        field_name  = {field_name, ",", name_slices[i].get_name()};
+      end
+    end
+
+    if (current_element == null) begin
+      `uvm_fatal(
+        "RegModel",
+        $sformatf(
+          "Cannot find field '%s' from block '%s'",
+          field_name, block.get_full_name()
+        )
+      )
+    end
+    else begin
+      `uvm_fatal(
+        "RegModel",
+        $sformatf("Eelement '%s' is not field", field_name)
+      )
+    end
+
+    return null;
+  end
 endfunction
 
 function automatic void rggen_ral_get_ancestors(

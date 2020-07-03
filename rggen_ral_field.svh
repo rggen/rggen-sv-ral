@@ -1,9 +1,9 @@
 class rggen_ral_field extends rggen_ral_field_base;
-  protected unsigned int  sequence_index;
+  protected int           sequence_index;
   protected string        reference_name;
   protected uvm_reg_field reference_field;
 
-  function new(string name = "rggen_ral_field");
+  function new(string name);
     super.new(name);
   endfunction
 
@@ -15,22 +15,21 @@ class rggen_ral_field extends rggen_ral_field_base;
     bit             volatile,
     uvm_reg_data_t  reset,
     bit             has_reset,
-    bit             is_rand,
-    int unsigned    sequence_index,
+    int             sequence_index,
     string          reference_name
   );
     super.configure(
       parent, size, lsb_pos, access, volatile,
-      reset, has_reset, is_rand, 0
+      reset, has_reset, 1, 0
     );
     this.sequence_index = sequence_index;
     this.reference_name = reference_name;
   endfunction
 
-  virtual function rggen_ral_block get_block();
+  virtual function uvm_reg_block get_parent_block();
     rggen_ral_reg rg;
     if ($cast(rg, get_parent())) begin
-      return rg.get_block();
+      return rg.get_parent_block();
     end
     else begin
       return null;
@@ -59,25 +58,25 @@ class rggen_ral_field extends rggen_ral_field_base;
     end
 
     reference_field =
-      rggen_ral_find_field_by_name(get_block(), name_slices);
+      rggen_ral_find_field_by_name(get_parent_block(), name_slices);
   endfunction
 
   protected function set_array_index(
     rggen_ral_name_slice  name_slice,
-    uvm_reg_field         element
+    uvm_object            element
   );
     rggen_ral_reg_file  file;
     rggen_ral_reg       rg;
     rggen_ral_field     field;
-    unsigned  int       array_index[$];
+    int                 array_index[$];
 
     if ($cast(file, element)) begin
       file.get_array_index(array_index);
     end
     else if ($cast(rg, element)) begin
-      file.get_array_index(array_index);
+      rg.get_array_index(array_index);
     end
-    else if ($cast(field, element)) begin
+    else if ($cast(field, element) && (field.sequence_index >= 0)) begin
       array_index.push_back(field.sequence_index);
     end
 
