@@ -1,8 +1,8 @@
 class rggen_ral_block extends rggen_ral_block_base;
   protected int unsigned  n_bytes;
 
-  function new(string name, int unsigned n_bytes);
-    super.new(name, UVM_NO_COVERAGE);
+  function new(string name, int unsigned n_bytes, int has_coverage);
+    super.new(name, has_coverage);
     this.n_bytes  = n_bytes;
   endfunction
 

@@ -1,8 +1,8 @@
 class rggen_ral_reg_file extends rggen_ral_block;
   protected int array_index[$];
 
-  function new(string name, int unsigned n_bytes);
-    super.new(name, n_bytes);
+  function new(string name, int unsigned n_bytes, int has_coverage);
+    super.new(name, n_bytes, has_coverage);
   endfunction
 
   function void configure(
