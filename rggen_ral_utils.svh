@@ -108,7 +108,7 @@ function automatic uvm_reg_field rggen_ral_find_field_by_name(
         field_name  = name_slices[i].get_name();
       end
       else begin
-        field_name  = {field_name, ",", name_slices[i].get_name()};
+        field_name  = {field_name, ".", name_slices[i].get_name()};
       end
     end
 
