@@ -9,18 +9,17 @@ class rggen_ral_indirect_reg extends rggen_ral_reg;
   endfunction
 
   function void configure(
-    uvm_reg_block blk_parent,
-    uvm_reg_file  regfile_parent,
-    int unsigned  array_index[$],
-    string        hdl_path  = ""
+    uvm_reg_block parent,
+    int           array_index[$],
+    string        hdl_path
   );
-    super.configure(blk_parent, regfile_parent, array_index, hdl_path);
+    super.configure(parent, array_index, hdl_path);
     setup_index_fields();
   endfunction
 
   virtual function uvm_reg_frontdoor create_frontdoor();
     rggen_ral_indirect_reg_frontdoor  frontdoor;
-    frontdoor = new(index_fields);
+    frontdoor = new("indirect_reg_frontdoor", index_fields);
     return frontdoor;
   endfunction
 
@@ -36,52 +35,37 @@ class rggen_ral_indirect_reg extends rggen_ral_reg;
   protected virtual function void setup_index_fields();
   endfunction
 
-  protected function void setup_index_field(
-    string          reg_name,
-    string          field_name,
-    uvm_reg_data_t  value
-  );
+  protected function void setup_index_field(string field_name, uvm_reg_data_t value);
     rggen_ral_indirect_reg_index_field  index_field;
-    index_field = new(this, reg_name, field_name, value);
+    index_field = new(this, field_name, value);
     index_fields.push_back(index_field);
   endfunction
 endclass
 
 class rggen_ral_indirect_reg_index_field;
-  protected uvm_reg         register;
-  protected string          reg_name;
+  protected rggen_ral_reg   rg;
   protected string          field_name;
   protected uvm_reg_data_t  value;
-  protected uvm_reg         index_reg;
   protected uvm_reg_field   index_field;
+  protected uvm_reg         index_reg;
 
-  function new(
-    uvm_reg         register,
-    string          reg_name,
-    string          field_name,
-    uvm_reg_data_t  value
-  );
-    this.register   = register;
-    this.reg_name   = reg_name;
+  function new(rggen_ral_reg rg, string field_name, uvm_reg_data_t value);
+    this.rg         = rg;
     this.field_name = field_name;
     this.value      = value;
   endfunction
 
   function uvm_reg get_index_reg();
     if (index_reg == null) begin
-      uvm_reg_block parent;
-      parent    = register.get_parent();
-      index_reg = parent.get_reg_by_name(reg_name);
+      uvm_reg_field field = get_index_field();
+      index_reg = field.get_parent();
     end
     return index_reg;
   endfunction
 
   function uvm_reg_field get_index_field();
     if (index_field == null) begin
-      void'(get_index_reg());
-      if (index_reg != null) begin
-        index_field = index_reg.get_field_by_name(field_name);
-      end
+      lookup_index_field();
     end
     return index_field;
   endfunction
@@ -89,10 +73,16 @@ class rggen_ral_indirect_reg_index_field;
   function uvm_reg_data_t get_value();
     return value;
   endfunction
-  
+
   function bit is_matched();
-    void'(get_index_field());
-    return (index_field.value == value) ? 1 : 0;
+    uvm_reg_field field = get_index_field();
+    return field.value == value;
+  endfunction
+
+  local function void lookup_index_field();
+    rggen_ral_name_slice  name_slices[$];
+    rggen_ral_get_name_slices(field_name, name_slices);
+    index_field = rggen_ral_find_field_by_name(rg.get_parent_block(), name_slices);
   endfunction
 endclass
 
@@ -100,8 +90,11 @@ class rggen_ral_indirect_reg_frontdoor extends uvm_reg_frontdoor;
   protected rggen_ral_indirect_reg_index_field  index_fields[$];
   protected bit                                 index_regs[uvm_reg];
 
-  function new(ref rggen_ral_indirect_reg_index_field index_fields[$]);
-    super.new("");
+  function new(
+    input string                              name,
+    ref   rggen_ral_indirect_reg_index_field index_fields[$]
+  );
+    super.new(name);
     foreach (index_fields[i]) begin
       this.index_fields.push_back(index_fields[i]);
     end
@@ -110,7 +103,7 @@ class rggen_ral_indirect_reg_frontdoor extends uvm_reg_frontdoor;
   task body();
     uvm_status_e  status;
 
-    update_index_fiels(status);
+    update_index_fields(status);
     if (status == UVM_NOT_OK) begin
       rw_info.status  = status;
       return;
@@ -124,24 +117,24 @@ class rggen_ral_indirect_reg_frontdoor extends uvm_reg_frontdoor;
     end
   endtask
 
-  local task update_index_fiels(ref uvm_status_e status);
+  local task update_index_fields(ref uvm_status_e status);
     if (index_regs.size() == 0) begin
       foreach (index_fields[i]) begin
-        uvm_reg index_reg = index_fields[i].get_index_reg();
-        if (!index_regs.exists(index_reg)) begin
-          index_regs[index_reg] = 1;
+        uvm_reg rg  = index_fields[i].get_index_reg();
+        if (!index_regs.exists(rg)) begin
+          index_regs[rg]  = 1;
         end
       end
     end
 
     foreach (index_fields[i]) begin
-      uvm_reg_field index_field = index_fields[i].get_index_field();
-      index_field.set(index_fields[i].get_value(), rw_info.fname, rw_info.lineno);
+      uvm_reg_field field = index_fields[i].get_index_field();
+      field.set(index_fields[i].get_value(), rw_info.fname, rw_info.lineno);
     end
 
     foreach (index_regs[index_reg]) begin
       index_reg.update(
-        status, rw_info.path, rw_info.map, rw_info.parent,
+        status, rw_info.path, null, rw_info.parent,
         rw_info.prior, rw_info.extension, rw_info.fname, rw_info.lineno
       );
       if (status == UVM_NOT_OK) begin

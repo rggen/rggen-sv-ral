@@ -22,12 +22,20 @@ package rggen_ral_pkg;
     typedef uvm_pkg::uvm_reg_map    rggen_ral_map_base;
   `endif
 
+  typedef class rggen_ral_field;
+  typedef class rggen_ral_reg;
+  typedef class rggen_ral_reg_file;
+  typedef class rggen_ral_block;
+  typedef class rggen_ral_map;
+
+  `include  "rggen_ral_utils.svh"
   `include  "rggen_ral_field.svh"
   `include  "rggen_ral_rwe_rwl_field.svh"
   `include  "rggen_ral_w0trg_w1trg_field.svh"
   `include  "rggen_ral_reg.svh"
+  `include  "rggen_ral_reg_file.svh"
   `include  "rggen_ral_indirect_reg.svh"
-  `include  "rggen_ral_map.svh"
   `include  "rggen_ral_block.svh"
+  `include  "rggen_ral_map.svh"
 endpackage
 `endif

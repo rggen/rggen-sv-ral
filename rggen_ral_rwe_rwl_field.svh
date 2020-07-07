@@ -1,22 +1,8 @@
-class rggen_ral_rwe_rwl_field_callbacks extends uvm_reg_cbs;
-  local uvm_reg_field field;
-  local bit           enable_mode;
-  local string        reg_name;
-  local string        field_name;
-  local uvm_reg_field mode_field;
-
-  function new(
-    string        name,
-    uvm_reg_field field,
-    bit           enable_mode,
-    string        reg_name,
-    string        field_name
-  );
+class rggen_ral_rwe_rwl_field_callbacks #(
+  bit ENABLE_MODE = 1
+) extends uvm_reg_cbs;
+  function new(string name = "rggen_ral_rwe_rwl_field_callbacks");
     super.new(name);
-    this.field        = field;
-    this.enable_mode  = enable_mode;
-    this.reg_name     = reg_name;
-    this.field_name   = field_name;
   endfunction
 
   function void post_predict(
@@ -27,43 +13,37 @@ class rggen_ral_rwe_rwl_field_callbacks extends uvm_reg_cbs;
     input uvm_door_e      path,
     input uvm_reg_map     map
   );
-    if ((kind == UVM_PREDICT_WRITE) && !is_writable()) begin
+    if ((kind == UVM_PREDICT_WRITE) && (!is_writable(fld))) begin
       value = previous;
     end
   endfunction
 
-  local function bit is_writable();
-    if ((reg_name.len() > 0) && (field_name.len() > 0)) begin
-      lookup_mode_field();
-      return (mode_field.value == enable_mode) ? 1 : 0;
+  local function bit is_writable(uvm_reg_field field);
+    uvm_reg_field mode_field  = get_mode_field(field);
+    if (mode_field != null) begin
+      return mode_field.value[0] == ENABLE_MODE;
     end
     else begin
       return 0;
     end
   endfunction
 
-  local function void lookup_mode_field();
-    if (mode_field == null) begin
-      uvm_reg       parent_reg;
-      uvm_reg_block parent_block;
-      uvm_reg       mode_reg;
-      parent_reg    = field.get_parent();
-      parent_block  = parent_reg.get_parent();
-      mode_reg      = parent_block.get_reg_by_name(reg_name);
-      mode_field    = mode_reg.get_field_by_name(field_name);
-    end
+  local function uvm_reg_field get_mode_field(uvm_reg_field field);
+    rggen_ral_field temp;
+    void'($cast(temp, field));
+    return temp.get_reference_field();
   endfunction
 endclass
 
-class rggen_ral_rwe_rwl_field extends rggen_ral_field;
-  local static  bit rwe_defined = define_access("RWE");
-  local static  bit rwl_defined = define_access("RWL");
+class rggen_ral_rwe_rwl_field #(
+  string  TYPE_NAME = "",
+  type    CALLBACKS = uvm_reg_cbs
+) extends rggen_ral_field;
+  local static  bit       defined = define_access(TYPE_NAME);
+  local static  CALLBACKS cb;
 
-  protected rggen_ral_rwe_rwl_field_callbacks callbacks;
-
-  function new(string name, bit enable_mode, string reg_name, string field_name);
+  function new(string name);
     super.new(name);
-    callbacks = new("callbacks", this, enable_mode, reg_name, field_name);
   endfunction
 
   function void configure(
@@ -74,14 +54,14 @@ class rggen_ral_rwe_rwl_field extends rggen_ral_field;
     bit             volatile,
     uvm_reg_data_t  reset,
     bit             has_reset,
-    bit             is_rand,
-    bit             individually_accessible
+    int             sequence_index,
+    string          reference_name
   );
     super.configure(
       parent, size, lsb_pos, access, volatile,
-      reset, has_reset, is_rand, individually_accessible
+      reset, has_reset, sequence_index, reference_name
     );
-    uvm_reg_field_cb::add(this, callbacks);
+    register_cb();
   endfunction
 
   function string get_access(uvm_reg_map map = null);
@@ -110,22 +90,24 @@ class rggen_ral_rwe_rwl_field extends rggen_ral_field;
       default:  return 0;
     endcase
   endfunction
-endclass
 
-class rggen_ral_rwe_field #(
-  string  REG_NAME    = "",
-  string  FIELD_NAME  = ""
-) extends rggen_ral_rwe_rwl_field;
-  function new(string name);
-    super.new(name, 1, REG_NAME, FIELD_NAME);
+  local function void register_cb();
+    if (cb == null) begin
+      cb  = new();
+    end
+    uvm_reg_field_cb::add(this, cb);
   endfunction
 endclass
 
-class rggen_ral_rwl_field #(
-  string  REG_NAME    = "",
-  string  FIELD_NAME  = ""
-) extends rggen_ral_rwe_rwl_field;
-  function new(string name);
-    super.new(name, 0, REG_NAME, FIELD_NAME);
-  endfunction
-endclass
+typedef rggen_ral_rwe_rwl_field_callbacks #(1)  rggen_ral_rwe_field_callbacks;
+typedef rggen_ral_rwe_rwl_field_callbacks #(0)  rggen_ral_rwl_field_callbacks;
+
+typedef rggen_ral_rwe_rwl_field #(
+  .TYPE_NAME  ("RWE"                          ),
+  .CALLBACKS  (rggen_ral_rwe_field_callbacks  )
+) rggen_ral_rwe_field;
+
+typedef rggen_ral_rwe_rwl_field #(
+  .TYPE_NAME  ("RWL"                          ),
+  .CALLBACKS  (rggen_ral_rwl_field_callbacks  )
+) rggen_ral_rwl_field;
