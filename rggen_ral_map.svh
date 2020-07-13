@@ -8,22 +8,6 @@ class rggen_ral_map extends rggen_ral_map_base;
 `ifdef RGGEN_ENABLE_ENHANCED_RAL
   typedef tue_pkg::tue_reg_map  tue_reg_map;
 
-  function void add_reg(
-    uvm_reg           rg,
-    uvm_reg_addr_t    offset,
-    string            rights    = "RW",
-    bit               unmapped  = 0,
-    uvm_reg_frontdoor frontdoor = null
-  );
-    rggen_ral_indirect_reg  indirect_reg;
-    if ($cast(indirect_reg, rg)) begin
-      super.add_reg(rg, offset, rights, 0, frontdoor);
-    end
-    else begin
-      super.add_reg(rg, offset, rights, unmapped, frontdoor);
-    end
-  endfunction
-
   protected function void m_remove_cached_reg(tue_reg_map root_map, uvm_reg rg, uvm_reg_addr_t addr);
     rggen_ral_map map;
     void'($cast(map, root_map));
