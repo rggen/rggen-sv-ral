@@ -4,7 +4,7 @@ package rggen_ral_backdoor_pkg;
   import  uvm_pkg::*;
 
 `ifdef RGGEN_ENABLE_BACKDOOR
-  import  rggen_backdoor_pkg::rggen_backdoor_vif;
+  typedef rggen_backdoor_pkg::rggen_backdoor_vif  rggen_backdoor_vif;
 
   class rggen_backdoor extends uvm_reg_backdoor;
     protected rggen_backdoor_vif  vif_cache[uvm_reg];
@@ -71,16 +71,10 @@ package rggen_ral_backdoor_pkg;
       end
 
       if (!vif_cache.exists(rg)) begin
-        lookup_vif(rg);
+        vif_cache[rg] = get_backdoor_vif(rg);
       end
 
       return vif_cache[rg];
-    endfunction
-
-    protected function void lookup_vif(uvm_reg rg);
-      uvm_hdl_path_concat hdl_path[$];
-      rg.get_full_hdl_path(hdl_path);
-      vif_cache[rg] =  rggen_backdoor_pkg::get_backdoor_vif(hdl_path[0].slices[0].path);
     endfunction
 
     protected function void get_location_info(
@@ -114,6 +108,12 @@ package rggen_ral_backdoor_pkg;
     endfunction
   endclass
 
+  function automatic rggen_backdoor_vif get_backdoor_vif(uvm_reg rg);
+    uvm_hdl_path_concat hdl_path[$];
+    rg.get_full_hdl_path(hdl_path);
+    return rggen_backdoor_pkg::get_backdoor_vif(hdl_path[0].slices[0].path);
+  endfunction
+
   function automatic bit is_backdoor_enabled();
     return 1;
   endfunction
@@ -122,6 +122,12 @@ package rggen_ral_backdoor_pkg;
     return rggen_backdoor::get();
   endfunction
 `else
+  typedef uvm_object  rggen_backdoor_vif; //  dummy
+
+  function automatic rggen_backdoor_vif get_backdoor_vif(uvm_reg rg);
+    return null;
+  endfunction
+
   function automatic bit is_backdoor_enabled();
     return 0;
   endfunction
