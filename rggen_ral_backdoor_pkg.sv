@@ -30,6 +30,10 @@ package rggen_ral_backdoor_pkg;
       uvm_reg_data_t      data;
       rggen_backdoor_vif  vif;
 
+      if (rw.kind != UVM_WRITE) begin
+        return;
+      end
+
       get_location_info(rw, width, lsb);
       mask  = ((1 << width) - 1) << lsb;
       data  = rw.value[0] << lsb;
@@ -44,6 +48,10 @@ package rggen_ral_backdoor_pkg;
       uvm_reg_data_t      mask;
       uvm_reg_data_t      data;
       rggen_backdoor_vif  vif;
+
+      if (rw.kind != UVM_READ) begin
+        return;
+      end
 
       get_location_info(rw, width, lsb);
       mask  = ((1 << width) - 1);

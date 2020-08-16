@@ -82,4 +82,15 @@ class rggen_ral_field extends rggen_ral_field_base;
 
     name_slice.set_array_index(array_index);
   endfunction
+
+`ifdef RGGEN_ENABLE_ENHANCED_RAL
+  protected function bit m_need_prediction(uvm_reg_item rw, uvm_predict_e kind);
+    if (kind == UVM_PREDICT_READ) begin
+      return super.m_need_prediction(rw, kind);
+    end
+    else begin
+      return 1;
+    end
+  endfunction
+`endif
 endclass
