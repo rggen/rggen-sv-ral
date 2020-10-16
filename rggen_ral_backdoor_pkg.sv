@@ -118,8 +118,10 @@ package rggen_ral_backdoor_pkg;
 
   function automatic rggen_backdoor_vif get_backdoor_vif(uvm_reg rg);
     uvm_hdl_path_concat hdl_path[$];
+    string              path;
     rg.get_full_hdl_path(hdl_path);
-    return rggen_backdoor_pkg::get_backdoor_vif(hdl_path[0].slices[0].path);
+    path  = {hdl_path[0].slices[0].path, ".u_register_common.u_backdoor"};
+    return rggen_backdoor_pkg::get_backdoor_vif(path);
   endfunction
 
   function automatic bit is_backdoor_enabled();
