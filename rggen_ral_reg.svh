@@ -19,6 +19,21 @@ class rggen_ral_reg extends rggen_ral_reg_base;
   function void build();
   endfunction
 
+  task backdoor_watch();
+    rggen_ral_backdoor_pkg::rggen_backdoor  backdoor;
+
+    if (rggen_ral_backdoor_pkg::is_backdoor_enabled()) begin
+      void'($cast(backdoor, get_backdoor()));
+    end
+
+    if (backdoor != null) begin
+      backdoor.wait_for_change(this);
+    end
+    else begin
+      `uvm_fatal("BACKDOOR", "backdoor access is not enabled")
+    end
+  endtask
+
 `ifndef RGGEN_ENABLE_ENHANCED_RAL
   virtual function uvm_reg_frontdoor create_frontdoor();
     return null;

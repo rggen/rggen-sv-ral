@@ -134,6 +134,11 @@ package rggen_ral_backdoor_pkg;
 `else
   typedef uvm_object  rggen_backdoor_vif; //  dummy
 
+  class rggen_backdoor extends uvm_reg_backdoor;
+    task wait_for_change(uvm_object element);
+    endtask
+  endclass
+
   function automatic rggen_backdoor_vif get_backdoor_vif(uvm_reg rg);
     return null;
   endfunction
