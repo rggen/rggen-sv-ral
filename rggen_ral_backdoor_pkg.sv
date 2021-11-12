@@ -2,6 +2,7 @@
 `define RGGEN_RAL_BACKDOOR_PKG_SV
 package rggen_ral_backdoor_pkg;
   import  uvm_pkg::*;
+  `include  "uvm_macros.svh"
 
 `ifdef RGGEN_ENABLE_BACKDOOR
   typedef rggen_backdoor_pkg::rggen_backdoor_vif  rggen_backdoor_vif;
