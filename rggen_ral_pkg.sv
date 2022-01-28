@@ -30,6 +30,7 @@ package rggen_ral_pkg;
 
   `include  "rggen_ral_utils.svh"
   `include  "rggen_ral_field.svh"
+  `include  "rggen_ral_rowo_field.svh"
   `include  "rggen_ral_rwe_rwl_field.svh"
   `include  "rggen_ral_w0trg_w1trg_field.svh"
   `include  "rggen_ral_reg.svh"
