@@ -184,24 +184,24 @@ class rggen_ral_map extends rggen_ral_map_base;
 `endif
 
   function uvm_reg get_reg_by_offset(uvm_reg_addr_t offset, bit read = 1);
-    begin
-      uvm_reg rg  = super.get_reg_by_offset(offset, read);
-      if (rg != null) begin
-        return rg;
-      end
+    uvm_reg                 rg;
+    rggen_ral_indirect_reg  indirect_rg;
+
+    rg  = super.get_reg_by_offset(offset, read);
+    if (rg != null) begin
+      return rg;
     end
 
     if (!m_indirect_regs_by_offset.exists(offset)) begin
       return null;
     end
 
-    foreach (m_indirect_regs_by_offset[offset][rg]) begin
-      rggen_ral_indirect_reg  indirect_reg;
-      void'($cast(indirect_reg, rg));
-      if (indirect_reg.is_active()) begin
+    void'(m_indirect_regs_by_offset[offset].first(rg));
+    do begin
+      if ($cast(indirect_rg, rg) && indirect_rg.is_active()) begin
         return rg;
       end
-    end
+    end while (m_indirect_regs_by_offset[offset].next(rg));
 
     return null;
   endfunction

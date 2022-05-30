@@ -19,18 +19,44 @@ class rggen_ral_reg extends rggen_ral_reg_base;
   function void build();
   endfunction
 
-  task backdoor_watch();
-    rggen_ral_backdoor_pkg::rggen_backdoor  backdoor;
-
-    if (rggen_ral_backdoor_pkg::is_backdoor_enabled()) begin
-      void'($cast(backdoor, get_backdoor()));
+  task backdoor_write(uvm_reg_item rw);
+    rggen_backdoor  backdoor  = get_rggen_backdoor();
+    if (backdoor != null) begin
+      backdoor.write(rw);
     end
+    else begin
+      super.backdoor_write(rw);
+    end
+  endtask
 
+  task backdoor_read(uvm_reg_item rw);
+    rggen_backdoor  backdoor  = get_rggen_backdoor();
+    if (backdoor != null) begin
+      backdoor.read(rw);
+    end
+    else begin
+      super.backdoor_read(rw);
+    end
+  endtask
+
+  function uvm_status_e backdoor_read_func(uvm_reg_item rw);
+    rggen_backdoor  backdoor  = get_rggen_backdoor();
+    if (backdoor != null) begin
+      backdoor.read_func(rw);
+      return UVM_IS_OK;
+    end
+    else begin
+      return super.backdoor_read_func(rw);
+    end
+  endfunction
+
+  task backdoor_watch();
+    rggen_backdoor  backdoor  = get_rggen_backdoor();
     if (backdoor != null) begin
       backdoor.wait_for_change(this);
     end
     else begin
-      `uvm_fatal("BACKDOOR", "backdoor access is not enabled")
+      super.backdoor_watch();
     end
   endtask
 
@@ -61,9 +87,14 @@ class rggen_ral_reg extends rggen_ral_reg_base;
     end
   endfunction
 
-  virtual function void enable_backdoor();
-    if (rggen_ral_backdoor_pkg::is_backdoor_enabled()) begin
-      set_backdoor(rggen_ral_backdoor_pkg::get_backdoor());
+  protected function rggen_backdoor get_rggen_backdoor();
+    rggen_backdoor  backdoor;
+
+    backdoor  = rggen_ral_backdoor_pkg::get_backdoor(this);
+    if (backdoor == null) begin
+      `uvm_warning("BACKDOOR", "backdoor access is not enabled")
     end
+
+    return backdoor;
   endfunction
 endclass

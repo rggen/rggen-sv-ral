@@ -61,7 +61,7 @@ class rggen_ral_field extends rggen_ral_field_base;
       rggen_ral_find_field_by_name(get_parent_block(), name_slices);
   endfunction
 
-  protected function set_array_index(
+  protected function void set_array_index(
     rggen_ral_name_slice  name_slice,
     uvm_object            element
   );

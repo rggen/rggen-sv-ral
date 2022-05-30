@@ -2,6 +2,7 @@
 `define RGGEN_RAL_PKG_SV
 package rggen_ral_pkg;
   import  uvm_pkg::*;
+  import  rggen_ral_backdoor_pkg::rggen_backdoor;
 
   `include  "uvm_macros.svh"
   `include  "rggen_ral_macros.svh"

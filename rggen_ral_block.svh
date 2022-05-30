@@ -79,15 +79,4 @@ class rggen_ral_block extends rggen_ral_block_base;
   protected virtual function uvm_reg_map create_default_map();
     return create_map("default_map", 0, n_bytes, UVM_LITTLE_ENDIAN, 1);
   endfunction
-
-  virtual function void enable_backdoor();
-    uvm_reg registers[$];
-    get_registers(registers, UVM_HIER);
-    foreach (registers[i]) begin
-      rggen_ral_reg rggen_reg;
-      if ($cast(rggen_reg, registers[i])) begin
-        rggen_reg.enable_backdoor();
-      end
-    end
-  endfunction
 endclass
