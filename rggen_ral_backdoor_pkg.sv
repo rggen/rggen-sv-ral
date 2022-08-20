@@ -89,15 +89,6 @@ package rggen_ral_backdoor_pkg;
         end
       endcase
     endfunction
-
-    protected static  rggen_backdoor  backdoor_cache[uvm_reg];
-
-    static function rggen_backdoor get(uvm_reg rg);
-      if (!backdoor_cache.exists(rg)) begin
-        backdoor_cache[rg]  = new("backdoor", rg);
-      end
-      return backdoor_cache[rg];
-    endfunction
   endclass
 
   function automatic bit is_backdoor_enabled();
@@ -105,7 +96,9 @@ package rggen_ral_backdoor_pkg;
   endfunction
 
   function automatic rggen_backdoor get_backdoor(uvm_reg rg);
-    return rggen_backdoor::get(rg);
+    rggen_backdoor  backdoor;
+    backdoor  = new("backdoor", rg);
+    return backdoor;
   endfunction
 `else
   class rggen_backdoor extends uvm_reg_backdoor;

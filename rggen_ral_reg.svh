@@ -1,5 +1,6 @@
 class rggen_ral_reg extends rggen_ral_reg_base;
-  protected int array_index[$];
+  protected int             array_index[$];
+  protected rggen_backdoor  backdoor;
 
   function new(string name, int unsigned n_bits, int has_coverage);
     super.new(name, n_bits, has_coverage);
@@ -20,7 +21,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
   endfunction
 
   task backdoor_write(uvm_reg_item rw);
-    rggen_backdoor  backdoor  = get_rggen_backdoor();
+    lookup_backdoor();
     if (backdoor != null) begin
       backdoor.write(rw);
     end
@@ -30,7 +31,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
   endtask
 
   task backdoor_read(uvm_reg_item rw);
-    rggen_backdoor  backdoor  = get_rggen_backdoor();
+    lookup_backdoor();
     if (backdoor != null) begin
       backdoor.read(rw);
     end
@@ -40,7 +41,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
   endtask
 
   function uvm_status_e backdoor_read_func(uvm_reg_item rw);
-    rggen_backdoor  backdoor  = get_rggen_backdoor();
+    lookup_backdoor();
     if (backdoor != null) begin
       backdoor.read_func(rw);
       return UVM_IS_OK;
@@ -51,7 +52,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
   endfunction
 
   task backdoor_watch();
-    rggen_backdoor  backdoor  = get_rggen_backdoor();
+    lookup_backdoor();
     if (backdoor != null) begin
       backdoor.wait_for_change(this);
     end
@@ -87,14 +88,12 @@ class rggen_ral_reg extends rggen_ral_reg_base;
     end
   endfunction
 
-  protected function rggen_backdoor get_rggen_backdoor();
-    rggen_backdoor  backdoor;
-
-    backdoor  = rggen_ral_backdoor_pkg::get_backdoor(this);
+  protected function void lookup_backdoor();
     if (backdoor == null) begin
-      `uvm_warning("BACKDOOR", "backdoor access is not enabled")
+      backdoor  = rggen_ral_backdoor_pkg::get_backdoor(this);
+      if (backdoor == null) begin
+        `uvm_warning("BACKDOOR", "backdoor access is not enabled")
+      end
     end
-
-    return backdoor;
   endfunction
 endclass
