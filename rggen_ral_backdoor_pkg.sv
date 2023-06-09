@@ -110,7 +110,7 @@ package rggen_ral_backdoor_pkg;
     return 0;
   endfunction
 
-  function automatic rggen_backdoor get_backdoor();
+  function automatic rggen_backdoor get_backdoor(uvm_reg rg);
     return null;
   endfunction
 `endif
