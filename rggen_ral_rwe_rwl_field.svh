@@ -10,7 +10,7 @@ class rggen_ral_rwe_rwl_field_callbacks #(
     input uvm_reg_data_t  previous,
     inout uvm_reg_data_t  value,
     input uvm_predict_e   kind,
-    input uvm_door_e      path,
+    input rggen_door      path,
     input uvm_reg_map     map
   );
     if ((kind == UVM_PREDICT_WRITE) && (!is_writable(fld))) begin

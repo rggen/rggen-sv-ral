@@ -8,7 +8,11 @@ package rggen_ral_pkg;
   `include  "rggen_ral_macros.svh"
 
   `ifdef RGGEN_UVM_PRE_IEEE
-    typedef uvm_path_e  uvm_door_e;
+    typedef uvm_path_e  rggen_door;
+    localparam  rggen_door  RGGEN_DEFAULT_DOOR  = UVM_DEFAULT_PATH;
+  `else
+    typedef uvm_door_e  rggen_door;
+    localparam  rggen_door  RGGEN_DEFAULT_DOOR  = UVM_DEFAULT_DOOR;
   `endif
 
   `ifdef RGGEN_ENABLE_ENHANCED_RAL

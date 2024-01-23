@@ -1,3 +1,11 @@
+function automatic void rggen_split_string(string string_value, byte separator, ref string values[$]);
+`ifdef RGGEN_UVM_PRE_2020
+  uvm_split_string(string_value, separator, values);
+`else
+  uvm_string_split(string_value, separator, values);
+`endif
+endfunction
+
 class rggen_ral_name_slice;
   local string  name;
   local string  array_name;
@@ -35,7 +43,7 @@ function automatic void rggen_ral_get_name_slices(
 );
   string                splitted_names[$];
   rggen_ral_name_slice  name_slice;
-  uvm_split_string(name, ".", splitted_names);
+  rggen_split_string(name, ".", splitted_names);
   foreach (splitted_names[i]) begin
     name_slice  = new(splitted_names[i]);
     name_slices.push_back(name_slice);

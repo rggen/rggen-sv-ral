@@ -89,10 +89,10 @@ class rggen_ral_custom_field_base extends rggen_ral_field;
 
     begin
       uvm_reg_data_t  value = rw.value[0];
-      uvm_door_e      path  = rw.path;
+      rggen_door      path  = rw.path;
 
       rw.value[0] = paredicted_value;
-      rw.path     = UVM_DEFAULT_PATH;
+      rw.path     = RGGEN_DEFAULT_DOOR;
       super.do_predict(rw, kind, be);
 
       rw.value[0] = value;

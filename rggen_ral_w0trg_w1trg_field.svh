@@ -8,7 +8,7 @@ class rggen_ral_w0trg_w1trg_field_callbacks extends uvm_reg_cbs;
     input uvm_reg_data_t  previous,
     inout uvm_reg_data_t  value,
     input uvm_predict_e   kind,
-    input uvm_door_e      path,
+    input rggen_door      path,
     input uvm_reg_map     map
   );
     value = 0;
@@ -86,7 +86,7 @@ class rggen_ral_w0trg_w1trg_field extends rggen_ral_field;
     input uvm_reg_data_t  current_value,
     inout uvm_reg_data_t  rw_value,
     input uvm_predict_e   kind,
-    input uvm_door_e      path,
+    input rggen_door      path,
     input uvm_reg_map     map
   );
     rw_value  = '0;

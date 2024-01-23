@@ -43,4 +43,12 @@ end
   `define RGGEN_UVM_PRE_IEEE
 `endif
 
+`ifndef RGGEN_UVM_PRE_IEEE
+  `ifndef UVM_VERSION_POST_2017
+    `define RGGEN_UVM_PRE_2020
+  `endif
+`else
+  `define RGGEN_UVM_PRE_2020
+`endif
+
 `endif
