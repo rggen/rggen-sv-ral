@@ -16,17 +16,20 @@ package rggen_ral_pkg;
   `endif
 
   `ifdef RGGEN_ENABLE_ENHANCED_RAL
+    typedef tue_pkg::tue_reg_item   rggen_ral_reg_item_base;
     typedef tue_pkg::tue_reg_field  rggen_ral_field_base;
     typedef tue_pkg::tue_reg        rggen_ral_reg_base;
     typedef tue_pkg::tue_reg_block  rggen_ral_block_base;
     typedef tue_pkg::tue_reg_map    rggen_ral_map_base;
   `else
+    typedef uvm_pkg::uvm_reg_item   rggen_ral_reg_item_base;
     typedef uvm_pkg::uvm_reg_field  rggen_ral_field_base;
     typedef uvm_pkg::uvm_reg        rggen_ral_reg_base;
     typedef uvm_pkg::uvm_reg_block  rggen_ral_block_base;
     typedef uvm_pkg::uvm_reg_map    rggen_ral_map_base;
   `endif
 
+  typedef class rggen_ral_reg_item;
   typedef class rggen_ral_field;
   typedef class rggen_ral_reg;
   typedef class rggen_ral_reg_file;
@@ -34,6 +37,7 @@ package rggen_ral_pkg;
   typedef class rggen_ral_map;
 
   `include  "rggen_ral_utils.svh"
+  `include  "rggen_ral_reg_item.svh"
   `include  "rggen_ral_field.svh"
   `include  "rggen_ral_rowo_field.svh"
   `include  "rggen_ral_rwe_rwl_field.svh"

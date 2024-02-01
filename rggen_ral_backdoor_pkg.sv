@@ -41,7 +41,20 @@ package rggen_ral_backdoor_pkg;
     endtask
 
     task read(uvm_reg_item rw);
-      read_func(rw);
+      int unsigned    width;
+      int unsigned    lsb;
+      uvm_reg_data_t  mask;
+      uvm_reg_data_t  data;
+
+      if (rw.kind != UVM_READ) begin
+        return;
+      end
+
+      get_location_info(rw, width, lsb);
+      mask  = (1 << width) - 1;
+
+      vif.backdoor_read(mask << lsb, data);
+      rw.value[0] = (data >> lsb) & mask;
     endtask
 
     function void read_func(uvm_reg_item rw);
@@ -55,7 +68,7 @@ package rggen_ral_backdoor_pkg;
       end
 
       get_location_info(rw, width, lsb);
-      mask  = ((1 << width) - 1);
+      mask  = (1 << width) - 1;
 
       data  = vif.get_read_data();
       rw.value[0] = (data >> lsb) & mask;
