@@ -52,14 +52,16 @@ class rggen_ral_rwe_rwl_field #(
     int unsigned    lsb_pos,
     string          access,
     bit             volatile,
-    uvm_reg_data_t  reset,
+    uvm_reg_data_t  reset_value,
+    uvm_reg_data_t  reset_values[$],
     bit             has_reset,
     int             sequence_index,
+    int             sequence_size,
     string          reference_name
   );
     super.configure(
       parent, size, lsb_pos, access, volatile,
-      reset, has_reset, sequence_index, reference_name
+      reset_value, reset_values, has_reset, sequence_index, sequence_size, reference_name
     );
     register_cb();
   endfunction

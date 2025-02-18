@@ -11,9 +11,10 @@ class rggen_ral_indirect_reg extends rggen_ral_reg;
   function void configure(
     uvm_reg_block parent,
     int           array_index[$],
+    int           array_size[$],
     string        hdl_path
   );
-    super.configure(parent, array_index, hdl_path);
+    super.configure(parent, array_index, array_size, hdl_path);
     setup_index_fields();
   endfunction
 

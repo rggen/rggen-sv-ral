@@ -1,5 +1,6 @@
 class rggen_ral_field extends rggen_ral_field_base;
   protected int           sequence_index;
+  protected int           sequence_size;
   protected string        reference_name;
   protected uvm_reg_field reference_field;
 
@@ -13,17 +14,32 @@ class rggen_ral_field extends rggen_ral_field_base;
     int unsigned    lsb_pos,
     string          access,
     bit             volatile,
-    uvm_reg_data_t  reset,
+    uvm_reg_data_t  reset_value,
+    uvm_reg_data_t  reset_values[$],
     bit             has_reset,
     int             sequence_index,
+    int             sequence_size,
     string          reference_name
   );
+    uvm_reg_data_t  reset;
+
+    this.sequence_index = sequence_index;
+    this.sequence_size  = sequence_size;
+    this.reference_name = reference_name;
+
+    if (reset_values.size() > 0) begin
+      int bit_field_index;
+      bit_field_index = calc_reset_value_index(parent);
+      reset = reset_values[bit_field_index];
+    end
+    else begin
+      reset = reset_value;
+    end
+
     super.configure(
       parent, size, lsb_pos, access, volatile,
       reset, has_reset, 1, 0
     );
-    this.sequence_index = sequence_index;
-    this.reference_name = reference_name;
   endfunction
 
   virtual function uvm_reg_block get_parent_block();
@@ -41,6 +57,32 @@ class rggen_ral_field extends rggen_ral_field_base;
       lookup_reference_field();
     end
     return reference_field;
+  endfunction
+
+  protected function int calc_reset_value_index(uvm_reg parent);
+    rggen_ral_reg rg;
+    int           array_index[$];
+    int           array_size[$];
+    int           index;
+    int           size;
+
+    if ($cast(rg, parent)) begin
+      rg.get_array_info(array_index, array_size, UVM_HIER);
+    end
+
+    if (sequence_size > 0) begin
+      array_index.push_back(sequence_index);
+      array_size.push_back(sequence_size);
+    end
+
+    index = 0;
+    size  = 1;
+    for (int i = (array_index.size() - 1);i >= 0;--i) begin
+      index += size * array_index[i];
+      size  *= array_size[i];
+    end
+
+    return index;
   endfunction
 
   protected function void lookup_reference_field();

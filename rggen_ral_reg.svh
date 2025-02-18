@@ -1,5 +1,6 @@
 class rggen_ral_reg extends rggen_ral_reg_base;
   protected int             array_index[$];
+  protected int             array_size[$];
   protected rggen_backdoor  backdoor;
 
   function new(string name, int unsigned n_bits, int has_coverage);
@@ -9,12 +10,12 @@ class rggen_ral_reg extends rggen_ral_reg_base;
   function void configure(
     uvm_reg_block parent,
     int           array_index[$],
+    int           array_size[$],
     string        hdl_path
   );
     super.configure(parent, null, hdl_path);
-    foreach (array_index[i]) begin
-      this.array_index.push_back(array_index[i]);
-    end
+    this.array_index  = array_index;
+    this.array_size   = array_size;
   endfunction
 
   function void build();
@@ -239,6 +240,24 @@ class rggen_ral_reg extends rggen_ral_reg_base;
   virtual function void get_array_index(ref int array_index[$]);
     foreach (this.array_index[i]) begin
       array_index.push_back(this.array_index[i]);
+    end
+  endfunction
+
+  virtual function void get_array_info(
+    ref   int         array_index[$],
+    ref   int         array_size[$],
+    input uvm_hier_e  hier  = UVM_HIER
+  );
+    if (hier == UVM_HIER) begin
+      rggen_ral_reg_file  rf;
+      if ($cast(rf, get_parent())) begin
+        rf.get_array_info(array_index, array_size, hier);
+      end
+    end
+
+    foreach (this.array_index[i]) begin
+      array_index.push_back(this.array_index[i]);
+      array_size.push_back(this.array_size[i]);
     end
   endfunction
 

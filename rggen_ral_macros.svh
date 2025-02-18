@@ -1,24 +1,24 @@
 `ifndef RGGEN_RAL_MACROS_SVH
 `define RGGEN_RAL_MACROS_SVH
 
-`define rggen_ral_create_field(HANDLE, LSB, SIZE, ACCESS, VOLATILE, RESET, HAS_RESET, SEQUENCE_INDEX, REFERNCE_NAME) \
+`define rggen_ral_create_field(HANDLE, LSB, SIZE, ACCESS, VOLATILE, RESET_VALUE, RESET_VALUES, HAS_RESET, SEQUENCE_INDEX, SEQUENCE_SIZE, REFERNCE_NAME) \
 begin \
   HANDLE  = new(`"HANDLE`"); \
-  HANDLE.configure(this, SIZE, LSB, ACCESS, VOLATILE, RESET, HAS_RESET, SEQUENCE_INDEX, REFERNCE_NAME); \
+  HANDLE.configure(this, SIZE, LSB, ACCESS, VOLATILE, RESET_VALUE, RESET_VALUES, HAS_RESET, SEQUENCE_INDEX, SEQUENCE_SIZE, REFERNCE_NAME); \
 end
 
-`define rggen_ral_create_reg(HANDLE, ARRAY_INDEX, OFFSET, RIGHTS, HDL_PATH) \
+`define rggen_ral_create_reg(HANDLE, ARRAY_INDEX, ARRAY_SIZE, OFFSET, RIGHTS, HDL_PATH) \
 begin \
   HANDLE  = new(`"HANDLE`"); \
-  HANDLE.configure(this, ARRAY_INDEX, HDL_PATH); \
+  HANDLE.configure(this, ARRAY_INDEX, ARRAY_SIZE, HDL_PATH); \
   HANDLE.build(); \
   default_map.add_reg(HANDLE, OFFSET, RIGHTS, 0); \
 end
 
-`define rggen_ral_create_reg_file(HANDLE, ARRAY_INDEX, OFFSET, HDL_PATH) \
+`define rggen_ral_create_reg_file(HANDLE, ARRAY_INDEX, ARRAY_SIZE, OFFSET, HDL_PATH) \
 begin \
   HANDLE  = new(`"HANDLE`"); \
-  HANDLE.configure(this, ARRAY_INDEX, HDL_PATH); \
+  HANDLE.configure(this, ARRAY_INDEX, ARRAY_SIZE, HDL_PATH); \
   HANDLE.build(); \
   this.default_map.add_submap(HANDLE.default_map, OFFSET); \
 end
