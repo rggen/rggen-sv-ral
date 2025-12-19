@@ -21,7 +21,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
   function void build();
   endfunction
 
-  task do_read(uvm_reg_item rw);
+  virtual task do_read(uvm_reg_item rw);
     rggen_ral_reg_item  reg_item;
 
     if ($cast(reg_item, rw)) begin
@@ -31,7 +31,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
     super.do_read(rw);
   endtask
 
-  task do_write(uvm_reg_item rw);
+  virtual task do_write(uvm_reg_item rw);
     rggen_ral_reg_item  reg_item;
 
     if ($cast(reg_item, rw)) begin
@@ -41,7 +41,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
     super.do_write(rw);
   endtask
 
-  task peek(
+  virtual task peek(
     output  uvm_status_e      status,
     output  uvm_reg_data_t    value,
     input   string            kind      = "",
@@ -94,7 +94,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
     end
   endtask
 
-  task poke(
+  virtual task poke(
     output  uvm_status_e      status,
     input   uvm_reg_data_t    value,
     input   string            kind      = "",
@@ -147,7 +147,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
     end
   endtask
 
-  function void do_predict(
+  virtual function void do_predict(
     uvm_reg_item      rw,
     uvm_predict_e     kind  = UVM_PREDICT_DIRECT,
     uvm_reg_byte_en_t be    = -1
@@ -163,7 +163,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
     end
   endfunction
 
-  task backdoor_write(uvm_reg_item rw);
+  virtual task backdoor_write(uvm_reg_item rw);
     if (rw.kind != UVM_WRITE) begin
       return;
     end
@@ -177,7 +177,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
     end
   endtask
 
-  task backdoor_read(uvm_reg_item rw);
+  virtual task backdoor_read(uvm_reg_item rw);
     if (rw.kind != UVM_READ) begin
       return;
     end
@@ -191,7 +191,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
     end
   endtask
 
-  function uvm_status_e backdoor_read_func(uvm_reg_item rw);
+  virtual function uvm_status_e backdoor_read_func(uvm_reg_item rw);
     if (rw.kind != UVM_READ) begin
       return UVM_NOT_OK;
     end
@@ -206,7 +206,7 @@ class rggen_ral_reg extends rggen_ral_reg_base;
     end
   endfunction
 
-  task backdoor_watch();
+  virtual task backdoor_watch();
     lookup_backdoor();
     if (backdoor != null) begin
       backdoor.wait_for_change(this);

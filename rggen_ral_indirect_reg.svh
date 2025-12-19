@@ -93,7 +93,7 @@ class rggen_ral_indirect_reg_frontdoor extends uvm_reg_frontdoor;
 
   function new(
     input string                              name,
-    ref   rggen_ral_indirect_reg_index_field index_fields[$]
+    ref   rggen_ral_indirect_reg_index_field  index_fields[$]
   );
     super.new(name);
     foreach (index_fields[i]) begin

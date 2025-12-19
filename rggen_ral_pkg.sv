@@ -47,6 +47,7 @@ package rggen_ral_pkg;
   `include  "rggen_ral_reg.svh"
   `include  "rggen_ral_reg_file.svh"
   `include  "rggen_ral_indirect_reg.svh"
+  `include  "rggen_ral_maskable_reg.svh"
   `include  "rggen_ral_block.svh"
   `include  "rggen_ral_map.svh"
 endpackage
